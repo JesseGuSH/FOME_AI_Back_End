@@ -1,15 +1,17 @@
 var createError = require("http-errors");
 var express = require("express");
+const fs = require("fs");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var formData = require("express-form-data");
-// var os = require("os");
 var videoUploading = require("./utils/VideoUploading");
-const { transferFile } = require("./utils/videoUploading");
+var { transferFile } = require("./utils/VideoUploading");
+const { exec } = require("child_process");
+const { Client } = require("ssh2");
 
 // var indexRouter = require("./routes/index");
-// var usersRouter = require("./routes/users");
+// var jsonRouter = require("./routes/index");
 
 var app = express();
 
@@ -26,9 +28,36 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(formData.parse());
 
 // app.use("/", indexRouter);
-// app.use("/users", usersRouter);
+// app.use("/json-data", jsonRouter);
+
+function executeCommands(ip, port, username, password, commands) {
+  const conn = new Client();
+  conn
+    .on("ready", () => {
+      conn.exec(commands, (err, stream) => {
+        if (err) throw err;
+        stream
+          .on("close", (code, signal) => {
+            console.log("Commands executed successfully");
+            conn.end();
+          })
+          .on("data", (data) => {
+            console.log("STDOUT: " + data);
+          })
+          .stderr.on("data", (data) => {
+            console.log("STDERR: " + data);
+          });
+      });
+    })
+    .connect({
+      host: ip,
+      port: port,
+      username: username,
+      password: password,
+    });
+}
+
 app.post("/", async (req, res) => {
-  // console.log("body: " + req.body.uri);
   try {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send("No files were uploaded.");
@@ -47,7 +76,8 @@ app.post("/", async (req, res) => {
     const username = "fome";
     const password = "fome12345678.";
     const remoteVideoPath = "/home/fome/data/INPUT";
-    const combinedCommands = `cd /home/fome/anaconda3/bin; source activate; cd /home/fome/Cloud_Pose; python pose_main.py --video_path ${remoteVideoPath}/${videoFile.name} --action YOUR_ACTION`;
+    const test_video_name = "heming_plank.mp4";
+    const action = "plank"; // Replace YOUR_ACTION with your desired action
 
     await videoUploading.transferFile(
       ip,
@@ -58,15 +88,82 @@ app.post("/", async (req, res) => {
       `${remoteVideoPath}/${videoFile.name}`,
       true
     );
-    await videoUploading.executeCommands(
+
+    // Command to execute on the remote server
+    const command = `
+      cd /home/fome/anaconda3/bin &&
+      source activate &&
+      cd /home/fome/Cloud_Pose &&
+      python pose_main.py --video_path ${remoteVideoPath}/${test_video_name} --action ${action}
+    `;
+
+    // Execute the command on the server
+    await executeCommands(ip, port, username, password, command);
+
+    const download_video_name = `${test_video_name}`;
+
+    const jsonFilePath = path.join(
+      "/home/fome/data/OUTPUT",
+      download_video_name.split(".")[0] + ".json"
+    );
+
+    const localOutputPath = path.join(
+      "/users/jesse/Desktop",
+      download_video_name.split(".")[0] + ".json"
+    );
+
+    videoUploading.transferFile(
       ip,
       port,
       username,
       password,
-      combinedCommands
+      localOutputPath,
+      jsonFilePath,
+      false
     );
-    // Continue with other operations
-    res.send("Video UpvideoUploading completed");
+
+    const pngFilePath = path.join(
+      "/home/fome/data/OUTPUT",
+      download_video_name.split(".")[0] + "_plank" + ".png"
+    );
+
+    const localpngOutputPath = path.join(
+      "/users/jesse/Desktop",
+      download_video_name.split(".")[0] + "_plank" + ".png"
+    );
+
+    videoUploading.transferFile(
+      ip,
+      port,
+      username,
+      password,
+      localpngOutputPath,
+      pngFilePath,
+      false
+    );
+
+    const errorPngFilePath = path.join(
+      "/home/fome/data/OUTPUT",
+      download_video_name.split(".")[0] + "_plank_error" + ".png"
+    );
+
+    const localErrorPngOutputPath = path.join(
+      "/users/jesse/Desktop",
+      download_video_name.split(".")[0] + "_plank_error" + ".png"
+    );
+
+    videoUploading.transferFile(
+      ip,
+      port,
+      username,
+      password,
+      localErrorPngOutputPath,
+      errorPngFilePath,
+      false
+    );
+
+    // Assuming the processing is done and you want to send some response
+    res.status(200).send("File uploaded and processed successfully.");
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
