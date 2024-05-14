@@ -76,7 +76,7 @@ app.post("/", async (req, res) => {
     const username = "fome";
     const password = "fome12345678.";
     const remoteVideoPath = "/home/fome/data/INPUT";
-    const test_video_name = "heming_plank.mp4";
+    const test_video_name = "testvideoQUT_plank.mp4";
     const action = "plank"; // Replace YOUR_ACTION with your desired action
 
     await videoUploading.transferFile(
@@ -100,16 +100,14 @@ app.post("/", async (req, res) => {
     // Execute the command on the server
     await executeCommands(ip, port, username, password, command);
 
-    const download_video_name = `${test_video_name}`;
-
     const jsonFilePath = path.join(
       "/home/fome/data/OUTPUT",
-      download_video_name.split(".")[0] + ".json"
+      test_video_name.split(".")[0] + ".json"
     );
 
     const localOutputPath = path.join(
       "/users/jesse/Desktop",
-      download_video_name.split(".")[0] + ".json"
+      test_video_name.split(".")[0] + ".json"
     );
 
     videoUploading.transferFile(
@@ -124,12 +122,12 @@ app.post("/", async (req, res) => {
 
     const pngFilePath = path.join(
       "/home/fome/data/OUTPUT",
-      download_video_name.split(".")[0] + "_plank" + ".png"
+      test_video_name.split(".")[0] + "_plank" + ".png"
     );
 
     const localpngOutputPath = path.join(
       "/users/jesse/Desktop",
-      download_video_name.split(".")[0] + "_plank" + ".png"
+      test_video_name.split(".")[0] + "_plank" + ".png"
     );
 
     videoUploading.transferFile(
@@ -144,12 +142,12 @@ app.post("/", async (req, res) => {
 
     const errorPngFilePath = path.join(
       "/home/fome/data/OUTPUT",
-      download_video_name.split(".")[0] + "_plank_error" + ".png"
+      test_video_name.split(".")[0] + "_plank_error" + ".png"
     );
 
     const localErrorPngOutputPath = path.join(
       "/users/jesse/Desktop",
-      download_video_name.split(".")[0] + "_plank_error" + ".png"
+      test_video_name.split(".")[0] + "_plank_error" + ".png"
     );
 
     videoUploading.transferFile(
