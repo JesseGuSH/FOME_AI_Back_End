@@ -106,7 +106,7 @@ app.post("/", async (req, res) => {
     );
 
     const localOutputPath = path.join(
-      "/users/jesse/Desktop",
+      "/users/jesse/Desktop/0515_FOME_Demo_Result/",
       test_video_name.split(".")[0] + ".json"
     );
 
@@ -126,7 +126,7 @@ app.post("/", async (req, res) => {
     );
 
     const localpngOutputPath = path.join(
-      "/users/jesse/Desktop",
+      "/users/jesse/Desktop/0515_FOME_Demo_Result/",
       test_video_name.split(".")[0] + "_plank" + ".png"
     );
 
@@ -146,7 +146,7 @@ app.post("/", async (req, res) => {
     );
 
     const localErrorPngOutputPath = path.join(
-      "/users/jesse/Desktop",
+      "/users/jesse/Desktop/0515_FOME_Demo_Result/",
       test_video_name.split(".")[0] + "_plank_error" + ".png"
     );
 
