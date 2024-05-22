@@ -7,7 +7,6 @@ var logger = require("morgan");
 var formData = require("express-form-data");
 var videoUploading = require("./utils/VideoUploading");
 var { transferFile } = require("./utils/VideoUploading");
-const { exec } = require("child_process");
 const { Client } = require("ssh2");
 
 // var indexRouter = require("./routes/index");
@@ -31,30 +30,104 @@ app.use(formData.parse());
 // app.use("/json-data", jsonRouter);
 
 function executeCommands(ip, port, username, password, commands) {
-  const conn = new Client();
-  conn
-    .on("ready", () => {
-      conn.exec(commands, (err, stream) => {
-        if (err) throw err;
-        stream
-          .on("close", (code, signal) => {
-            console.log("Commands executed successfully");
-            conn.end();
-          })
-          .on("data", (data) => {
-            console.log("STDOUT: " + data);
-          })
-          .stderr.on("data", (data) => {
-            console.log("STDERR: " + data);
-          });
+  return new Promise((resolve, reject) => {
+    const conn = new Client();
+    conn
+      .on("ready", () => {
+        conn.exec(commands, (err, stream) => {
+          if (err) return reject(err);
+          stream
+            .on("close", (code, signal) => {
+              console.log("Commands executed successfully");
+              conn.end();
+              resolve();
+            })
+            .on("data", (data) => {
+              console.log("STDOUT: " + data);
+            })
+            .stderr.on("data", (data) => {
+              console.log("STDERR: " + data);
+            });
+        });
+      })
+      .connect({
+        host: ip,
+        port: port,
+        username: username,
+        password: password,
       });
-    })
-    .connect({
-      host: ip,
-      port: port,
-      username: username,
-      password: password,
+  });
+}
+
+async function checkRemoteFileExists(sftp, remotePath) {
+  return new Promise((resolve, reject) => {
+    sftp.stat(remotePath, (err, stats) => {
+      if (err) {
+        if (err.code === 2) {
+          return resolve(false); // File does not exist
+        }
+        return reject(err);
+      }
+      resolve(true);
     });
+  });
+}
+
+async function transferFileWithCheck(
+  ip,
+  port,
+  username,
+  password,
+  localPath,
+  remotePath,
+  toRemote
+) {
+  const conn = new Client();
+  return new Promise((resolve, reject) => {
+    conn
+      .on("ready", () => {
+        conn.sftp(async (err, sftp) => {
+          if (err) {
+            conn.end();
+            return reject(err);
+          }
+
+          try {
+            if (toRemote) {
+              // Upload file
+              sftp.fastPut(localPath, remotePath, (err) => {
+                conn.end();
+                if (err) return reject(err);
+                resolve();
+              });
+            } else {
+              // Check if the file exists before downloading
+              const fileExists = await checkRemoteFileExists(sftp, remotePath);
+              if (!fileExists) {
+                conn.end();
+                return reject(new Error(`File does not exist: ${remotePath}`));
+              }
+
+              // Download file
+              sftp.fastGet(remotePath, localPath, (err) => {
+                conn.end();
+                if (err) return reject(err);
+                resolve();
+              });
+            }
+          } catch (error) {
+            conn.end();
+            reject(error);
+          }
+        });
+      })
+      .connect({
+        host: ip,
+        port: port,
+        username: username,
+        password: password,
+      });
+  });
 }
 
 app.post("/", async (req, res) => {
@@ -79,7 +152,7 @@ app.post("/", async (req, res) => {
     const test_video_name = "testvideoQUT_plank.mp4";
     const action = "plank"; // Replace YOUR_ACTION with your desired action
 
-    await videoUploading.transferFile(
+    await transferFileWithCheck(
       ip,
       port,
       username,
@@ -106,11 +179,11 @@ app.post("/", async (req, res) => {
     );
 
     const localOutputPath = path.join(
-      "/users/jesse/Desktop/0515_FOME_Demo_Result/",
+      "/users/jesse/Desktop/FOME_Demo_Result/",
       test_video_name.split(".")[0] + ".json"
     );
 
-    videoUploading.transferFile(
+    await transferFileWithCheck(
       ip,
       port,
       username,
@@ -126,11 +199,11 @@ app.post("/", async (req, res) => {
     );
 
     const localpngOutputPath = path.join(
-      "/users/jesse/Desktop/0515_FOME_Demo_Result/",
+      "/users/jesse/Desktop/FOME_Demo_Result/",
       test_video_name.split(".")[0] + "_plank" + ".png"
     );
 
-    videoUploading.transferFile(
+    await transferFileWithCheck(
       ip,
       port,
       username,
@@ -146,17 +219,37 @@ app.post("/", async (req, res) => {
     );
 
     const localErrorPngOutputPath = path.join(
-      "/users/jesse/Desktop/0515_FOME_Demo_Result/",
+      "/users/jesse/Desktop/FOME_Demo_Result/",
       test_video_name.split(".")[0] + "_plank_error" + ".png"
     );
 
-    videoUploading.transferFile(
+    await transferFileWithCheck(
       ip,
       port,
       username,
       password,
       localErrorPngOutputPath,
       errorPngFilePath,
+      false
+    );
+
+    const poseVideoFilePath = path.join(
+      "/home/fome/data/OUTPUT",
+      test_video_name.split(".")[0] + "_plank_pose" + ".mp4"
+    );
+
+    const localPoseVideoOutputPath = path.join(
+      "/users/jesse/Desktop/FOME_Demo_Result/",
+      test_video_name.split(".")[0] + "_plank_pose" + ".mp4"
+    );
+
+    await transferFileWithCheck(
+      ip,
+      port,
+      username,
+      password,
+      localPoseVideoOutputPath,
+      poseVideoFilePath,
       false
     );
 
