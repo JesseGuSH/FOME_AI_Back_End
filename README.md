@@ -1,6 +1,6 @@
 # My Backend Project
 
-This is a backend of FOME.ai Prototype built with Node.js and Express. 
+This is the backend of FOME.ai Prototype built with Node.js and Express. 
 It serves as a local server for handling video uploading and processing for CV module requests and responses.
 
 ## Table of Contents
@@ -33,7 +33,7 @@ To run this project locally, follow these steps:
 
 This will run locally at http://localhost:3000.
 
-## GET /api/CVProcessing
+## API EndPoints
 
 - Description: This endpoint is used for CV (Computer Vision) processing.
 - Method: POST
