@@ -1,6 +1,7 @@
 # My Backend Project
 
-This is a backend project built with Node.js and Express. It serves as a local server for handling video uploading and processing for CV module requests and responses.
+This is a backend of FOME.ai Prototype built with Node.js and Express. 
+It serves as a local server for handling video uploading and processing for CV module requests and responses.
 
 ## Table of Contents
 
