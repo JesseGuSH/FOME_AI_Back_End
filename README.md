@@ -27,7 +27,7 @@ To run this project locally, follow these steps:
 
    ### `nodemon`
 
-4. Repalce the download directory to yours in index.js:
+4. Replace the download directory to yours in index.js:
 
    ### `/users/jesse/Desktop/FOME_Demo_Result/`
 
