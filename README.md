@@ -1,4 +1,4 @@
-# My Backend Project
+# FomeAI BackEnd
 
 This is the backend of FOME.ai Prototype built with Node.js and Express. 
 It serves as a local server for handling video uploading and processing for CV module requests and responses.
