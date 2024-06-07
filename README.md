@@ -1,4 +1,4 @@
-# My Backend Project
+# FomeAI BackEnd
 
 This is the backend of FOME.ai Prototype built with Node.js and Express. 
 It serves as a local server for handling video uploading and processing for CV module requests and responses.
@@ -27,7 +27,7 @@ To run this project locally, follow these steps:
 
    ### `nodemon`
 
-4. Repalce the download directory to yours in index.js:
+4. Replace the download directory to yours in index.js:
 
    ### `/users/jesse/Desktop/FOME_Demo_Result/`
 
