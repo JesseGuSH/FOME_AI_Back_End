@@ -236,7 +236,7 @@ router.post("/api/CVProcessing", async (req, res) => {
       false
     );
 
-    // Assuming the processing is done and you want to send some response
+
     res.status(200).send("File uploaded and processed successfully.");
   } catch (error) {
     console.error(error);

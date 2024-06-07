@@ -1,6 +1,6 @@
 # FomeAI BackEnd
 
-This is the backend of FOME.ai Prototype built with Node.js and Express. 
+This is the backend of FOME.ai Prototype built with Node.js and Express.
 It serves as a local server for handling video uploading and processing for CV module requests and responses.
 
 ## Table of Contents
@@ -30,6 +30,8 @@ To run this project locally, follow these steps:
 4. Replace the download directory to yours in index.js:
 
    ### `/users/jesse/Desktop/FOME_Demo_Result/`
+
+5. Fill in account and password for Azure virtual machine in index.js and VideoUploading.js
 
 This will run locally at http://localhost:3000.
 
