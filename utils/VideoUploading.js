@@ -75,8 +75,9 @@ if (require.main === module) {
     // Server connection details
     const ip = "40.82.202.11";
     const port = 22;
-    const username = "fome";
-    const password = "fome12345678.";
+    //Fill in Fome account and password for Azure virtual machine
+    const username = "xxxx";
+    const password = "xxxxxxxxx";
     const localVideoPath = args.video_path;
     const testVideoName = path.basename(localVideoPath);
     const remoteVideoPath = path.join("/home/fome/data/INPUT", testVideoName);

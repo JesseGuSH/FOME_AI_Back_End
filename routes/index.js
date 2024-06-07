@@ -120,18 +120,17 @@ router.post("/api/CVProcessing", async (req, res) => {
       return res.status(400).send("No files were uploaded.");
     }
 
-    // Assuming you only expect one file to be uploaded
     const videoFile = req.files.video;
 
     // Use videoFile.tempFilePath to get the temporary file path
     const filePath = videoFile.path;
     console.log(filePath);
 
-    // Assuming these variables are defined elsewhere
     const ip = "40.82.202.11";
     const port = 22;
-    const username = "fome";
-    const password = "fome12345678.";
+    //Fill in Fome account and password for Azure virtual machine
+    const username = "xxxx";
+    const password = "xxxxxxxxx";
     const remoteVideoPath = "/home/fome/data/INPUT";
     const test_video_name = "testvideoQUT_plank.mp4";
     const action = "plank"; // Replace YOUR_ACTION with your desired action
